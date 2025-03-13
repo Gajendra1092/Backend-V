@@ -10,6 +10,6 @@ const connectDB = async () => {
         console.error("MONGO_DB Connection Error:" ,error);
         process.exit(1);
     }
-}
+} // async await in database connection is necessary and do not have any alternative.
 
 export default connectDB;

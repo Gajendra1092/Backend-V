@@ -5,7 +5,6 @@ const asyncHandler = (requsetHandler) => {
     }
 }
 
-
 export {asyncHandler};
 
 // const asyncHandler = (fn) => async (req, res, next) => {
