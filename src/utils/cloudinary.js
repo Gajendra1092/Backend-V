@@ -5,7 +5,7 @@ import fs from 'fs'; // nodejs library which is used in file handling like read 
  cloudinary.config({ 
     cloud_name: 'dvpset7bw', 
     api_key: '316193194152524', 
-    api_secret: process.env.CLOUDINARY_URL // Click 'View API Keys' above to copy your API secret
+    api_secret: process.env.CLOUDINARY_SECRET_KEY // Click 'View API Keys' above to copy your API secret
 });
 
 // method to upload file.
