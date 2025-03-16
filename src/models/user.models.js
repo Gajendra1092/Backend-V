@@ -74,13 +74,14 @@ UserSchema.methods.generateAccessToken = function(){
         username: this.username,
         fullname: this.fullname,
     },
-      process.env.JWT_SECRET,
+      process.env.ACCESS_TOKEN_SECRET,
     {
         expiresIn: process.env.ACCESS_TOKEN_EXPIRY
     }
     
 )
 }
+
 UserSchema.methods.generateRefreshToken = function(){
     return jwt.sign({
         _id: this._id,
@@ -88,12 +89,11 @@ UserSchema.methods.generateRefreshToken = function(){
         username: this.username,
         fullname: this.fullname,
     },
-      process.env.JWT_SECRET,
+      process.env.REFRESS_TOKEN_SECRET,
     {
         expiresIn: process.env.REFRESS_TOKEN_EXPIRY
     }
 )
 }
-
 
 export const User = mongoose.model("User", UserSchema); // User is the name of the collection in the database. UserSchema is the schema of the collection.
