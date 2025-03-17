@@ -1,12 +1,14 @@
-import { User } from "../models/user.models";
-import { asyncHandler } from "../utils/asyncHandler"
-import { JsonWebTokenError } from "jsonwebtoken";
+import { User } from "../models/user.models.js";
+import { ApiError } from "../utils/ApiErrors.js";
+import { asyncHandler } from "../utils/asyncHandler.js"
+import jwt from "jsonwebtoken";
 
 export const verifyJWT = asyncHandler(async (req, _ , next) => {
 
    try {
-    const token = req.cookie?.accessToken || req.header("Authorization")?.replace("Bearer ", "");
- 
+
+    const token = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ", "");
+
     if(!token){
      throw new ApiError(401, "Unauthorized request");
     }
@@ -30,4 +32,3 @@ export const verifyJWT = asyncHandler(async (req, _ , next) => {
 
 // cookies access to req and response is given by cookie parser package in app.js.
 // req.header is given by mobile applications.
-here 
