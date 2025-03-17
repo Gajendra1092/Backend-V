@@ -4,6 +4,7 @@ import {User} from "../models/user.models.js";
 import {uploadOnCloudinary} from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
+import { request } from "express";
 
 const generateRefreshTokenandAccessToken = async (userId) => {
    try{
@@ -194,9 +195,93 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     }
 })
 
+const changeCurrentPassword = asyncHandler(async (req, res) => {
+
+    const {oldPassword, newPassword} = req.body;
+
+    if(!(oldPassword && newPassword)){
+        throw new ApiError(400, "All fields are required!");
+    }
+
+    const user = await User.findById(req.user?._id);
+    const correctPassword = await user.isPasswordCorrect(oldPassword);
+
+    if(!correctPassword){
+        throw new ApiError(400, "Invalid old password!");
+    }
+
+    user.password = newPassword;
+    await user.save({validateBeforeSave: false});
+
+    return res.status(200).json(new ApiResponse(200, {}, "Password changed successfully!"));
+
+    // return res.status(200).redirect('/register');  
+})
+
+const getCurrentUser = asyncHandler(async (req, res) => {
+    return res.status(200).json(new ApiResponse(200, req.user, "User found!"));
+})
+
+const updateAccountDetails = asyncHandler(async (req, res) => {
+    const {fullName, email} = req.body;
+    if(!fullName || !email){
+        throw new ApiError(400, "Atleast one field is required!");
+    }
+
+    User.findByIdAndUpdate(req.user?._id, {$set: {
+        fullName,
+        email
+     }
+    },{new:true}).select("-password"); // by set we can save database calls.
+
+    return res.status(200).json(new ApiResponse(200, req.user, "Account detail updated successfully!"));
+
+}); // professionally we should have have different controllers for text and image uploads.
+
+const updateUserAvatar = asyncHandler(async(req, res) => {
+    const currentAvatar = req.file?.path; // here only one file is present not files so file is written.
+    if(!currentAvatar){
+        throw new ApiError(400, "Avatar is required!");
+    }
+
+    const avatar = await uploadOnCloudinary(currentAvatar);
+    if(!avatar.url){
+        throw new ApiError(400, "Failed to upload avatar!");
+    }
+
+    req.user.avatar = avatar.url;
+    await req.user.save({validateBeforeSave: false});
+
+    return res.status(200).json(new ApiResponse(200, req.user, "Avatar updated successfully!"));
+
+});
+
+const updateUserCoverImage = asyncHandler(async(req, res) => {
+    const currentCoverImage = req.file?.path; // here only one file is present not files so file is written.
+    if(!currentCoverImage){
+        throw new ApiError(400, "Cover Image is required!");
+    }
+
+    const coverImage = await uploadOnCloudinary(currentCoverImage);
+    if(!coverImage.url){
+        throw new ApiError(400, "Failed to upload Cover Image!");
+    }
+
+    req.user.coverImage = coverImage.url;
+    await req.user.save({validateBeforeSave: false});
+
+    return res.status(200).json(new ApiResponse(200, req.user, "Cover Image updated successfully!"));
+
+});
+
 export {
     registerUser,
     loginUser,
     logOutUser,
-    refreshAccessToken
-} 
+    refreshAccessToken,
+    changeCurrentPassword,
+    getCurrentUser,
+    updateAccountDetails,
+    updateUserAvatar,
+    updateUserCoverImage,
+}
