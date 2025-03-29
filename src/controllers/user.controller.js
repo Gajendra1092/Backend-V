@@ -6,6 +6,10 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
 import { request } from "express";
 
+function extractPublicId(url) {
+    return url.match(/upload\/(?:v\d+\/)?(.+)\.\w+$/)[1];
+}
+
 const generateRefreshTokenandAccessToken = async (userId) => {
    try{
     const user = await User.findById(userId);
@@ -243,7 +247,18 @@ const updateUserAvatar = asyncHandler(async(req, res) => {
     if(!currentAvatar){
         throw new ApiError(400, "Avatar is required!");
     }
+    
+    // deleting the avatar
+    const url = req.user.avatar;
+    console.log(url);
+    publicId = extractPublicId(url);
+    console.log(publicId);
 
+    const delAvatar = await cloudinary.uploader.destroy(publicId);
+    if(!delAvatar){
+        console.log("Avatar not deleted!");
+    }
+    
     const avatar = await uploadOnCloudinary(currentAvatar);
     if(!avatar.url){
         throw new ApiError(400, "Failed to upload avatar!");
@@ -251,6 +266,8 @@ const updateUserAvatar = asyncHandler(async(req, res) => {
 
     req.user.avatar = avatar.url;
     await req.user.save({validateBeforeSave: false});
+
+
 
     return res.status(200).json(new ApiResponse(200, req.user, "Avatar updated successfully!"));
 
@@ -271,6 +288,66 @@ const updateUserCoverImage = asyncHandler(async(req, res) => {
     await req.user.save({validateBeforeSave: false});
 
     return res.status(200).json(new ApiResponse(200, req.user, "Cover Image updated successfully!"));
+
+});
+
+const getUserChannelProfile = asyncHandler(async (req, res) => {
+      const {username} = req.params;
+      if(!username){
+            throw new ApiError(400, "Username is required!");
+    }
+    
+    // aggregation pipeline to get the channel profile.
+    const channel = await User.aggregate([{
+        $match: {
+            username: username?.toLowerCase()
+        }
+    },{
+        $lookup: {
+            from: "subscriptions",
+            localField: "_id",
+            foreignField: "channel",
+            as: "subscribers"
+        }
+    },{
+        $lookup: {
+            from: "subscriptions",
+            localField: "_id",
+            foreignField: "subscriber",
+            as: "subscriberTo"
+        },
+    },{
+        $addFields:{
+            subscribersCount: {$size: "$subscribers"},
+            subscriberToCount: {$size: "$subscriberTo"},
+            isSuscribed: {
+                $cond: {
+                    if: {$in: [req.user?._id, "$subscribers.subscriber"]},
+                    then: true,
+                    else: false
+                }
+            },
+        }
+    },{
+        $project: {
+            fullName: 1,
+            username: 1,
+            avatar: 1,
+            coverImage: 1,
+            subscribersCount: 1,
+            subscriberToCount: 1,
+            isSuscribed: 1,
+        }
+    }
+
+
+]
+);
+   if(!channel?.length){
+       throw new ApiError(404, "Channel not found!");
+   }
+
+   return res.status(200).json(new ApiResponse(200, channel[0], "Channel found!"));
 
 });
 
