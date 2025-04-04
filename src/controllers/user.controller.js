@@ -129,7 +129,6 @@ const loginUser = asyncHandler(async (req, res) => {
         throw new ApiError(401, "Invalid creditials!");
     }
 
-
     const {accessToken, refreshToken} = await generateRefreshTokenandAccessToken(user._id);
 
     const loggedInUser = await User.findById(user._id).select("-password -refreshToken"); // as previously user do not have the refresh token.
@@ -157,6 +156,7 @@ const logOutUser = asyncHandler(async (req, res) => {
     },{
         new: true, // set the refresh token to undefined otherwise old value will be there.
     }
+
 );
 
     const options = {
@@ -193,7 +193,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     
         const {accessToken, new_refreshToken} = await generateRefreshTokenandAccessToken(user._id); 
     
-        return response.status(200).cookie("accessToken",accessToken, options).cookie("refreshToken", new_refreshToken, options).json(new ApiResponse(200, {accessToken, refreshToken}, "Access token refreshed!"));
+        return res.status(200).cookie("accessToken",accessToken, options).cookie("refreshToken", new_refreshToken, options).json(new ApiResponse(200, {accessToken, new_refreshToken}, "Access token refreshed!"));
     } catch (error) {
         throw new ApiError(401, error?.message || "Invalid refresh token!");
     }
@@ -227,6 +227,7 @@ const getCurrentUser = asyncHandler(async (req, res) => {
 })
 
 const updateAccountDetails = asyncHandler(async (req, res) => {
+
     const {fullName, email} = req.body;
     if(!fullName || !email){
         throw new ApiError(400, "Atleast one field is required!");
@@ -240,18 +241,19 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
 
     return res.status(200).json(new ApiResponse(200, req.user, "Account detail updated successfully!"));
 
-}); // professionally we should have have different controllers for text and image uploads.
+}); // professionally we should have different controllers for text and image uploads.
+
 
 const updateUserAvatar = asyncHandler(async(req, res) => {
     const currentAvatar = req.file?.path; // here only one file is present not files so file is written.
     if(!currentAvatar){
         throw new ApiError(400, "Avatar is required!");
     }
-    
+   
     // deleting the avatar
     const url = req.user.avatar;
     console.log(url);
-    publicId = extractPublicId(url);
+    const publicId = extractPublicId(url);
     console.log(publicId);
 
     const delAvatar = await cloudinary.uploader.destroy(publicId);
@@ -267,11 +269,10 @@ const updateUserAvatar = asyncHandler(async(req, res) => {
     req.user.avatar = avatar.url;
     await req.user.save({validateBeforeSave: false});
 
-
-
     return res.status(200).json(new ApiResponse(200, req.user, "Avatar updated successfully!"));
 
 });
+
 
 const updateUserCoverImage = asyncHandler(async(req, res) => {
     const currentCoverImage = req.file?.path; // here only one file is present not files so file is written.
@@ -290,6 +291,7 @@ const updateUserCoverImage = asyncHandler(async(req, res) => {
     return res.status(200).json(new ApiResponse(200, req.user, "Cover Image updated successfully!"));
 
 });
+
 
 const getUserChannelProfile = asyncHandler(async (req, res) => {
       const {username} = req.params;
@@ -351,6 +353,7 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
 
 });
 
+
 const getWatchHistory = asyncHandler(async (req, res) => {
       const user = await User.aggregate([
         {
@@ -388,6 +391,7 @@ const getWatchHistory = asyncHandler(async (req, res) => {
       ])
       return res.status(200).json(new ApiResponse(200, user[0]?.watchHistory, "Watch history found!"));
 });
+
 
 export {
     registerUser,
