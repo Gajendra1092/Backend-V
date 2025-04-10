@@ -27,13 +27,13 @@ app.use(cookieParser());
 
 // routes import (segration)
 import userRouter from "./routes/user.routes.js";
+import videoRouter from "./routes/video.routes.js";
+import tweetRouter from "./routes/tweet.routes.js";
 
 // routes declarations
 // app.use("/users", userRouter);  used as a middleware here. Ref. example file in backend folder.
 app.use("/api/v1/users", userRouter); // standard pratice to define api version.
-
-
-
-
+app.use("/api/v1/videos", videoRouter);
+app.use("/api/v1/tweets", tweetRouter);
 
 export default app; // export {app}; both are same thing.

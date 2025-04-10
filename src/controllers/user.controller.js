@@ -4,7 +4,7 @@ import {User} from "../models/user.models.js";
 import {uploadOnCloudinary} from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
-import { request } from "express";
+import cloudinary from "cloudinary";
 
 function extractPublicId(url) {
     return url.match(/upload\/(?:v\d+\/)?(.+)\.\w+$/)[1];
@@ -62,7 +62,6 @@ const registerUser = asyncHandler(async (req, res) => {
     // if(req.files?.coverImage?.[0]?.path) {
     //     coverImageLocalPath = req.files.coverImage[0].path;
     // }
-
 
     if(!avatarLocalPath){
         throw new ApiError(400, "Avatar is required");
@@ -294,9 +293,10 @@ const updateUserCoverImage = asyncHandler(async(req, res) => {
 
 
 const getUserChannelProfile = asyncHandler(async (req, res) => {
-      const {username} = req.params;
-      if(!username){
-            throw new ApiError(400, "Username is required!");
+
+    const {username} = req.params;
+    if(!username){
+        throw new ApiError(400, "Username is required!");
     }
     
     // aggregation pipeline to get the channel profile.
