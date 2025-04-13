@@ -88,7 +88,7 @@ const getSubscribedChannels = asyncHandler(async (req, res) => {
         }
     },{
         $group:{
-            _id: "$channel",
+            _id: new mongoose.Types.ObjectId(subscriberId),
             totalSubscriptions: { $sum: 1 }
         }
     }

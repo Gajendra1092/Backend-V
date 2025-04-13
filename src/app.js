@@ -30,6 +30,7 @@ import userRouter from "./routes/user.routes.js";
 import videoRouter from "./routes/video.routes.js";
 import tweetRouter from "./routes/tweet.routes.js";
 import subsRouter from "./routes/subscription.routes.js";
+import playlistRouter from "./routes/playlist.routes.js";
 
 
 // routes declarations
@@ -38,5 +39,6 @@ app.use("/api/v1/users", userRouter); // standard pratice to define api version.
 app.use("/api/v1/videos", videoRouter);
 app.use("/api/v1/tweets", tweetRouter);
 app.use("/api/v1/subDetail", subsRouter);
+app.use("/api/v1/playlist", playlistRouter);
 
 export default app; // export {app}; both are same thing.
