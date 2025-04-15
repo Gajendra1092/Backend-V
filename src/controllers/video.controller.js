@@ -163,7 +163,7 @@ const updateVideoThumbnail = asyncHandler(async (req, res) => {
       overwrite: true,     // this replaces the old asset
       invalidate: true     // optional: forces CDN to update
     });
-    console.log(result);
+
     if(!result || !result.secure_url){
         throw new ApiError(400, "Failed to update thumbnail!");
     }

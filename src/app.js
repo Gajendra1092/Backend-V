@@ -34,6 +34,7 @@ import playlistRouter from "./routes/playlist.routes.js";
 import likeRouter from "./routes/like.routes.js";
 import dashboardRouter from "./routes/dashboard.routes.js";
 import commentsRouter from "./routes/comment.routes.js";
+import healthCheckRouter from "./routes/healthcheck.routes.js";
 
 
 // routes declarations
@@ -46,5 +47,6 @@ app.use("/api/v1/playlist", playlistRouter);
 app.use("/api/v1/likes", likeRouter); 
 app.use("/api/v1/dashboard", dashboardRouter); 
 app.use("/api/v1/comments", commentsRouter); 
+app.use("/api/v1/healthCheck", healthCheckRouter);
 
 export default app; // export {app}; both are same thing.
