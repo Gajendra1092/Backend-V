@@ -7,7 +7,7 @@ import {asyncHandler} from "../utils/asyncHandler.js"
 const createTweet = asyncHandler(async (req, res) => {
     //TODO: create tweet
     const { tweet } = req.body; // take tweet as string not object.
-    const userId = req.user._id;
+    const userId = req.user._id.toString();
 
 
     if (!tweet || tweet.trim() === ""){

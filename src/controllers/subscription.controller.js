@@ -1,5 +1,4 @@
 import mongoose, {isValidObjectId} from "mongoose"
-import {User} from "../models/user.models.js"
 import { Subscription } from "../models/subscriptions.models.js"
 import {ApiError} from "../utils/ApiErrors.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
@@ -9,7 +8,7 @@ import {asyncHandler} from "../utils/asyncHandler.js"
 const toggleSubscription = asyncHandler(async (req, res) => {
     // TODO: toggle subscription
     const {channelId} = req.params
-    const {userId} = req.user._id;
+    const userId = req.user._id.toString();
 
     if(!channelId && !userId){
         throw new ApiError(400,"Give channel and user info!")
@@ -68,8 +67,7 @@ const getUserChannelSubscribers = asyncHandler(async (req, res) => {
     );
 });
 
-
-// controller to return channel list to which user has subscribed
+// controller to return channel list to which user has subscribed not working
 const getSubscribedChannels = asyncHandler(async (req, res) => {
     const { subscriberId } = req.params
     // const { userId } = req.user._id;
